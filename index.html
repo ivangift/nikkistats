@@ -1,5 +1,24 @@
 <html>
+  <head>
+ 		<script type='text/javascript' charset="UTF-8" src='jquery.js'></script>
+ 		<script type='text/javascript' charset="UTF-8" src='wardrobe.js'></script>
+    <script type='text/javascript' charset="UTF-8" src='pattern.js'></script>
+    <script type='text/javascript' charset="UTF-8" src='evolve.js'></script>
+    <script type='text/javascript' charset="UTF-8" src='convert.js'></script>
+    <script type='text/javascript' charset="UTF-8" src='merchant.js'></script>
+    <script>
+		  $(document).ready(function() {
+			  $("#text").html(
+			  	"wardrobe: " + wardrobe.length + " items<br/>"
+			  	+ "pattern: " + pattern.length + " items<br/>"
+			  	+ "evolve: " + evolve.length + " items<br/>"
+			  	+ "convert: " + convert.length + " items<br/>"
+			  	+ "merchant: " + merchant.length + " items<br/>"
+			  );
+			});
+  	</script>
+  </head>
   <body>
-  hello world.
+  	<div id="text"></div>
   </body>
-</html>
+ </html>
