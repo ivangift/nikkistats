@@ -4,7 +4,7 @@ import csv
 PATH = 'raw'
 SOURCE = 'source'
 
-header = """// Clothes: name, type, id, gorgeous, simple, elegant, active, mature, cute, sexy, pure, cool, warm，extra, source
+header = """// Clothes: name, type, id, gorgeous, simple, elegant, active, mature, cute, sexy, pure, cool, warm，extra, source, suit
 // credits to jillhx@tieba
 """
 
@@ -32,6 +32,7 @@ pattern = 'pattern.csv'
 evolve = 'evolve.csv'
 convert = 'convert.csv'
 merchant = 'merchant.csv'
+suits = 'suits.csv'
 
 def subkey(key):
   if key in suborder:
@@ -63,8 +64,8 @@ def process(name, file, skip = 2):
     if len(row) > 14 and len(row[14]) > 0:
       row[13] = row[13] + "," + row[14]
     tbd = row[:14]
-    if len(row) > 15:
-      tbd.append(row[15])
+    tbd.append(row[15])
+    tbd.append(row[16])      
     out[key].append(tbd)
   for k in out:
     print k, len(out[k])
@@ -116,6 +117,7 @@ for row in reader:
   price = row[3]
   num = row[4]
   if hint_target not in clothes[target]:
+    skip = skip + 1
     continue;
   writer.write("  ['%s', '%s', '%s', '%s', '%s'],\n" % (target, hint_target, source, price, num))
 writer.write("];")
@@ -132,6 +134,7 @@ for row in reader:
   price = row[2]
   unit = row[3]
   if hint_target not in clothes[target]:
+    skip = skip + 1
     continue;
   writer.write("  ['%s', '%s', '%s', '%s'],\n" % (target, hint_target, price, unit))
 writer.write("];")
@@ -149,8 +152,27 @@ for row in reader:
   hint_source = row[3]
   num = row[4]
   if hint_target not in clothes[target]:
+    skip = skip + 1
     continue;
   writer.write("  ['%s', '%s', '%s', '%s', '%s'],\n" % (target, hint_target, source, hint_source, num))
+writer.write("];")
+writer.close()
+print "skiped", skip, "items"
+
+skip = 0
+writer = open('suits.js', 'w');
+reader = csv.reader(open(SOURCE + "/" + suits))
+writer.write("var suits = [\n")
+reader.next()
+for row in reader:
+  category = row[0]
+  suit = row[1]
+  target = row[3]
+  id = row[4]
+  if id not in clothes[target]:
+    skip = skip + 1
+    continue;
+  writer.write("  ['%s', '%s', '%s', '%s'],\n" % (category, suit, target, id))
 writer.write("];")
 writer.close()
 print "skiped", skip, "items"
