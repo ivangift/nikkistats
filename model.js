@@ -204,6 +204,9 @@ function MyClothes() {
         }
         var section = sections[i].split(':');
         var type = section[0];
+        if (type == "上装") {
+          type = "上衣";
+        }
         this.mine[type] = section[1].split(',');
         this.size += this.mine[type].length;
       }
