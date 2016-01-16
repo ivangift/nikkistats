@@ -3,11 +3,6 @@
 var FEATURES = ["simple", "cute", "active", "pure", "cool"];
 var ACCRATIO = [1, 1, 1, 1, 0.95, 0.9, 0.825, 0.75, 0.7, 0.65, 0.6, 0.55, 0.51, 0.47, 0.45, 0.425, 0.4];
 
-var global = {
-  float: null,
-  floating: true,
-  additionalBonus: null
-};
 
 // parses a csv row into object
 // Clothes: name, type, id, stars, gorgeous, simple, elegant, active, mature, cute, sexy, pure, cool, warm，extra
