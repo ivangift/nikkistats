@@ -289,42 +289,44 @@ var clothesRanking = function() {
   }
   return ret;
 }();
-
-var shoppingCart = {
-  cart: {},
-  totalScore: fakeClothes(this.cart),
-  clear: function() {
-    this.cart = {};
-  },
-  contains: function(c) {
-    return this.cart[c.type.type] == c;
-  },
-  remove: function(c) {
-    delete this.cart[c];
-  },
-  putAll: function(clothes) {
-    for (var i in clothes) {
-      this.put(clothes[i]);
+var shoppingCart = ShoppingCart();
+function ShoppingCart() {
+  return {
+    cart: {},
+    totalScore: fakeClothes(this.cart),
+    clear: function() {
+      this.cart = {};
+    },
+    contains: function(c) {
+      return this.cart[c.type.type] == c;
+    },
+    remove: function(c) {
+      delete this.cart[c];
+    },
+    putAll: function(clothes) {
+      for (var i in clothes) {
+        this.put(clothes[i]);
+      }
+    },
+    put: function(c) {
+      this.cart[c.type.type] = c;
+    },
+    toList: function(sortBy) {
+      var ret = [];
+      for (var t in this.cart) {
+        ret.push(this.cart[t]);
+      }
+      return ret.sort(sortBy);
+    },
+    calc: function() {
+      /*
+      for (var c in this.cart) {
+        this.cart[c].calc(criteria);
+      }
+      */
+      // fake a clothes
+      this.totalScore = fakeClothes(this.cart);
     }
-  },
-  put: function(c) {
-    this.cart[c.type.type] = c;
-  },
-  toList: function(sortBy) {
-    var ret = [];
-    for (var t in this.cart) {
-      ret.push(this.cart[t]);
-    }
-    return ret.sort(sortBy);
-  },
-  calc: function() {
-    /*
-    for (var c in this.cart) {
-      this.cart[c].calc(criteria);
-    }
-    */
-    // fake a clothes
-    this.totalScore = fakeClothes(this.cart);
   }
 };
 
