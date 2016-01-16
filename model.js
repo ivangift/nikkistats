@@ -70,6 +70,12 @@ Clothes = function(csv) {
         var f = FEATURES[i]; 
         if (filters[f]) {
           var sub = filters[f] * self[f][2];
+          if (filters.boost1 && filters.boost1 == f) {
+            sub *= 1.27;
+          }
+          if (filters.boost2 && filters.boost2 == f) {
+            sub *= 1.27 * 1.4;
+          }
           if (filters[f] > 0) {
             if (sub > 0) {
               this.tmpScoreByCategory.record(f, sub, 0); // matched with major
@@ -317,6 +323,12 @@ function ShoppingCart() {
         ret.push(this.cart[t]);
       }
       return ret.sort(sortBy);
+    },
+    getScore: function(cate) {
+      if (this.cart[cate]) {
+        return this.cart[cate].tmpScore;
+      }
+      return 0;
     },
     calc: function() {
       /*
