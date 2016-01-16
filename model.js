@@ -114,10 +114,9 @@ Clothes = function(csv) {
         }
         this.tmpScore += total;
       }
-      /* TODO: uncomment this when F mechanism is fully understood
-      if (this.type.needFilter() && currentLevel.filter) {
+      if (this.type.needFilter() && currentLevel && currentLevel.filter) {
         currentLevel.filter.filter(this);
-      }*/
+      }
       this.tmpScore = Math.round(this.tmpScore);   
     }
   };
