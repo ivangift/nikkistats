@@ -7,19 +7,22 @@ var ACCRATIO = [1, 1, 1, 1, 0.95, 0.9, 0.825, 0.75, 0.7, 0.65, 0.6, 0.55, 0.51, 
 // parses a csv row into object
 // Clothes: name, type, id, stars, gorgeous, simple, elegant, active, mature, cute, sexy, pure, cool, warm，extra
 //          0     1     2   3      4         5       6        7       8       9     10    11    12    13    14
-Clothes = function(csv) {
+Clothes = function(csv, real) {
   var theType = typeInfo[csv[1]];
+  if (!theType) {
+    alert("not found: " + csv[1]);
+  }
   return {
     own: false,
     name: csv[0],
     type: theType,
     id: csv[2],
     stars: csv[3],
-    simple: realRating(csv[5], csv[4], theType),
-    cute: realRating(csv[9], csv[8], theType),
-    active: realRating(csv[7], csv[6], theType),
-    pure: realRating(csv[11], csv[10], theType),
-    cool: realRating(csv[12], csv[13], theType),
+    simple: realRating(csv[5], csv[4], real ? real[5] : null, real ? real[4] : null, theType),
+    cute: realRating(csv[9], csv[8], real ? real[9] : null, real ? real[8] : null, theType),
+    active: realRating(csv[7], csv[6], real ? real[7] : null, real ? real[6] : null, theType),
+    pure: realRating(csv[11], csv[10], real ? real[11] : null, real ? real[10] : null, theType),
+    cool: realRating(csv[12], csv[13], real ? real[12] : null, real ? real[13] : null, theType),
     tags: csv[14].split(','),
     source: Source(csv[15]),
     suit: csv[16],
@@ -97,6 +100,7 @@ Clothes = function(csv) {
       }
 
       this.tmpScore = Math.round(s);
+      this.tmpBonus = 0;
       if (filters.bonus) {
         var total = 0;
         for (var i in filters.bonus) {
@@ -113,12 +117,14 @@ Clothes = function(csv) {
             }
           }
         }
+        this.tmpBonus = total;
         this.tmpScore += total;
       }
       if (this.type.needFilter() && currentLevel && currentLevel.filter) {
         currentLevel.filter.filter(this);
       }
       this.tmpScore = Math.round(this.tmpScore);   
+      this.tmpBonus = Math.round(this.tmpBonus);
     }
   };
 }
@@ -265,9 +271,18 @@ function compactSource(source) {
 }
 
 var clothes = function() {
+  var reals = {};
+  if (wardrobe_real) {
+    for (var i in wardrobe_real) {
+      var key = wardrobe_real[i][1] + wardrobe_real[i][2];
+      reals[key] = wardrobe_real[i];
+    }
+  }
+
   var ret = [];
   for (var i in wardrobe) {
-    ret.push(Clothes(wardrobe[i]));
+    var key = wardrobe[i][1] + wardrobe[i][2];
+    ret.push(Clothes(wardrobe[i], reals[key]));
   }
   return ret;
 }();
@@ -342,15 +357,16 @@ function ShoppingCart() {
   }
 };
 
-function accScore(total, items) {
+function accScore(total, totalBonus, items) {
   if (items < ACCRATIO.length) {
-    return total * ACCRATIO[items];
+    return (total - totalBonus) * ACCRATIO[items] + totalBonus;
   }
-  return total * 0.4;
+  return (total - totalBonus) * 0.4 + totalBonus;
 }
 
 function fakeClothes(cart) {
   var totalScore = 0;
+  var totalAccessoriesBonus = 0;
   var totalAccessories = 0;
   var totalScoreByCategory = ScoreByCategory();
   var totalBonusByCategory = ScoreByCategory();
@@ -360,6 +376,7 @@ function fakeClothes(cart) {
   for (var c in cart) {
     if (c.split('-')[0] == "饰品") {
       totalAccessories += cart[c].tmpScore;
+      totalAccessoriesBonus += cart[c].tmpBonus;
       totalAccessoriesByCategory.add(cart[c].tmpScoreByCategory);
       totalAccessoriesBonusByCategory.add(cart[c].bonusByCategory);
       numAccessories ++;
@@ -369,16 +386,14 @@ function fakeClothes(cart) {
       totalBonusByCategory.add(cart[c].bonusByCategory);
     }
   }
-  totalScore += accScore(totalAccessories, numAccessories);
+  totalScore += accScore(totalAccessories, totalAccessoriesBonus, numAccessories);
   for (var c in totalAccessoriesByCategory.scores) {
-    totalAccessoriesByCategory.scores[c][0] = accScore(totalAccessoriesByCategory.scores[c][0],
+    totalAccessoriesByCategory.scores[c][0] = accScore(totalAccessoriesByCategory.scores[c][0], 0,
         numAccessories);
-    totalAccessoriesByCategory.scores[c][1] = accScore(totalAccessoriesByCategory.scores[c][1],
+    totalAccessoriesByCategory.scores[c][1] = accScore(totalAccessoriesByCategory.scores[c][1], 0,
         numAccessories);
-    totalAccessoriesBonusByCategory.scores[c][0] = accScore(totalAccessoriesBonusByCategory.scores[c][0],
-        numAccessories);
-    totalAccessoriesBonusByCategory.scores[c][1] = accScore(totalAccessoriesBonusByCategory.scores[c][1],
-        numAccessories);
+    totalAccessoriesBonusByCategory.scores[c][0] = totalAccessoriesBonusByCategory.scores[c][0]; // WTF...bonus never chagnes
+    totalAccessoriesBonusByCategory.scores[c][1] = totalAccessoriesBonusByCategory.scores[c][1];
   }
   totalScoreByCategory.add(totalAccessoriesByCategory);
   totalBonusByCategory.add(totalAccessoriesBonusByCategory);
@@ -410,11 +425,19 @@ function scoreWithBonusTd(score, bonus) {
   return score + '<div>+' + bonus + '</div>';
 }
 
-function realRating(a, b, type) {
+function realRating(a, b, realScoreA, realScoreB, type) {
   real = a ? a : b;
+  realScore = a ? realScoreA : realScoreB;
   symbol = a ? 1 : -1;
   score = symbol * type.score[real];
   dev = type.deviation[real];
+  if (realScore) {
+    score = symbol * realScore;
+    dev = 0;
+  } else {
+    score = symbol * type.score[real];  
+    dev = type.deviation[real];
+  }
   return [a, b, score, dev];
 }
 
