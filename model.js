@@ -440,7 +440,7 @@ function parseSource(source, key) {
   var ridx = source.indexOf('/', idx+1);
   if (ridx < 0) ridx = 99;
   if (idx >= 0) {
-    var id = source.substring(idx + 1, Math.min(idx + 4, ridx));
+    var id = source.substring(idx + 1, Math.min(source.length, ridx));
     while (id.length < 3) id = '0' + id;
     return id;
   }
