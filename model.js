@@ -272,7 +272,12 @@ function compactSource(source) {
 
 var clothes = function() {
   var reals = {};
-
+  if (typeof wardrobe_real !== "undefined") {
+    for (var i in wardrobe_real) {
+      var key = wardrobe_real[i][1] + wardrobe_real[i][2];
+      reals[key] = wardrobe_real[i];
+    }
+  }
   var ret = [];
   for (var i in wardrobe) {
     var key = wardrobe[i][1] + wardrobe[i][2];
