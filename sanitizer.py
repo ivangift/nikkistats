@@ -19,6 +19,7 @@ files = {
   '上衣': ('tops.csv', 2),
   '饰品': ('accessories.csv', 2),
 }
+full_file = 'full.csv'
 
 fileorder = ['发型', '连衣裙', '外套', '上衣', '下装', '袜子', '鞋子', '饰品', '妆容']
 
@@ -33,6 +34,7 @@ evolve = 'evolve.csv'
 convert = 'convert.csv'
 merchant = 'merchant.csv'
 suits = 'suits.csv'
+blacklist = 'blacklist.csv'
 
 def subkey(key):
   if key in suborder:
@@ -40,6 +42,7 @@ def subkey(key):
   return key
 
 clothes = {}
+details = {}
 
 def add_clothes(category, id):
   if category not in clothes:
@@ -65,7 +68,31 @@ def process(name, file, skip = 2):
       row[13] = row[13] + "," + row[14]
     tbd = row[:14]
     tbd.append(row[15])
-    tbd.append(row[16])      
+    tbd.append(row[16])
+    out[key].append(tbd)
+  for k in out:
+    print k, len(out[k])
+  return out
+
+def process_full(file):
+  reader = csv.reader(open(PATH + "/" + file))
+  reader.next()
+  out = {}
+  skip = 0
+  for row in reader:
+    key = row[1]
+    name = row[1]
+    if row[3] not in clothes[key]:
+      continue
+    if len(row[2]) > 0 and (row[2] != key or row[2] == '袜子'):
+      key = key + "-" + row[2]
+    row.pop(2)
+    if key not in out:
+      out[key] = []
+    if len(row[15]) > 0:
+      row[14] = row[14] + "," + row[15]
+    tbd = row[:12] + [row[13], row[12], row[14]]
+    #tbd.append(row[16])
     out[key].append(tbd)
   for k in out:
     print k, len(out[k])
@@ -80,12 +107,40 @@ for f in fileorder:
   for key in sorted(out, key = subkey):
     if key not in category:
       category.append(key)
+      details[key] = {}
     for row in out[key]:
       # output in forms of name, *type*, id, stars, features....
       newrow = [row[0]] + [key] + row[1:]
+      details[key][row[1]] = newrow[15]
       writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in newrow])))
 writer.write("];\n");
 writer.write("var category = [%s];\n" % (','.join(["'" + i + "'" for i in category])))
+writer.close()
+
+"""
+writer = open('wardrobe_full.js', 'w');
+writer.write(header)
+writer.write("var wardrobe_full = [\n")
+out = process_full(full_file)
+for key in sorted(out, key = subkey):
+  for row in out[key]:
+    # output in forms of name, *type*, id, stars, features....
+    newrow = [row[0]] + [key] + row[2:]
+    writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in newrow])))
+writer.write("];\n");
+writer.close()
+"""
+
+reader = csv.reader(open(PATH + "/" + blacklist))
+writer = open('blacklist.js', 'w');
+writer.write("// blacklist by bunny and morei\n")
+writer.write("var blacklist = [\n")
+reader.next()
+for row in reader:
+  if len(row) < 4 or len(row[0]) == 0:
+    continue
+  writer.write("  ['%s', '%s', '%s'],\n" % (row[0], row[2], row[3]))
+writer.write("];")
 writer.close()
 
 reader = csv.reader(open(SOURCE + "/" + evolve))
