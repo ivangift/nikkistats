@@ -76,7 +76,7 @@ Clothes = function(csv, real) {
       }
       
       for (var i in FEATURES) {
-        var f = FEATURES[i]; 
+        var f = FEATURES[i];
         if (filters[f]) {
           var sub = filters[f] * self[f][2];
           if (filters.boost1 && filters.boost1 == f) {
@@ -85,6 +85,7 @@ Clothes = function(csv, real) {
           if (filters.boost2 && filters.boost2 == f) {
             sub *= 1.27 * 1.4;
           }
+          
           if (filters[f] > 0) {
             if (sub > 0) {
               this.tmpScoreByCategory.record(f, sub, 0); // matched with major
@@ -97,7 +98,6 @@ Clothes = function(csv, real) {
             } else {
               this.tmpScoreByCategory.record(f, sub, 0); // mismatch with major
             }
-            
           }
           if (sub > 0) {
             s += sub;
@@ -107,6 +107,7 @@ Clothes = function(csv, real) {
 
       this.tmpScore = Math.round(s);
       this.tmpBonus = 0;
+      /*
       if (filters.bonus) {
         var total = 0;
         for (var i in filters.bonus) {
@@ -131,6 +132,7 @@ Clothes = function(csv, real) {
       }
       this.tmpScore = Math.round(this.tmpScore);   
       this.tmpBonus = Math.round(this.tmpBonus);
+      */
     }
   };
 }
@@ -147,9 +149,9 @@ function ScoreByCategory() {
       this.scores[category] = [major, minor];
     },
     clear: function() {
-      for (var c in FEATURES) {
-        initial[FEATURES[c]][0] = 0;
-        initial[FEATURES[c]][1] = 0;
+      for (var c in initial) {
+        initial[c][0] = 0;
+        initial[c][1] = 0;
       }
     },
     add: function(other) {
