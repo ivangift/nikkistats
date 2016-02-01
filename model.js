@@ -107,7 +107,7 @@ Clothes = function(csv, real) {
 
       this.tmpScore = Math.round(s);
       this.tmpBonus = 0;
-      /*
+      
       if (filters.bonus) {
         var total = 0;
         for (var i in filters.bonus) {
@@ -132,7 +132,6 @@ Clothes = function(csv, real) {
       }
       this.tmpScore = Math.round(this.tmpScore);   
       this.tmpBonus = Math.round(this.tmpBonus);
-      */
     }
   };
 }
