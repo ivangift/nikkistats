@@ -67,8 +67,14 @@ Clothes = function(csv, real) {
     calc: function(filters) {
       var s = 0;
       var self = this;
-      this.tmpScoreByCategory = ScoreByCategory();
-      this.bonusByCategory = ScoreByCategory();
+      if (!this.tmpScoreByCategory) {
+        this.tmpScoreByCategory = ScoreByCategory();
+        this.bonusByCategory = ScoreByCategory();
+      } else {
+        this.tmpScoreByCategory.clear();
+        this.bonusByCategory.clear();
+      }
+      
       for (var i in FEATURES) {
         var f = FEATURES[i]; 
         if (filters[f]) {
@@ -139,6 +145,12 @@ function ScoreByCategory() {
     // score: positive - matched, negative - no matched
     record: function(category, major, minor) {
       this.scores[category] = [major, minor];
+    },
+    clear: function() {
+      for (var c in FEATURES) {
+        initial[FEATURES[c]][0] = 0;
+        initial[FEATURES[c]][1] = 0;
+      }
     },
     add: function(other) {
       if (other) {
