@@ -26,6 +26,8 @@ Clothes = function(csv, real) {
     tags: csv[14].split(','),
     source: Source(csv[15]),
     suit: csv[16],
+    tmpScoreByCategory: ScoreByCategory(),
+    bonusByCategory: ScoreByCategory(),
     deps: {},
     toCsv: function() {
       name = this.name;
@@ -67,13 +69,8 @@ Clothes = function(csv, real) {
     calc: function(filters) {
       var s = 0;
       var self = this;
-      if (!this.tmpScoreByCategory) {
-        this.tmpScoreByCategory = ScoreByCategory();
-        this.bonusByCategory = ScoreByCategory();
-      } else {
-        this.tmpScoreByCategory.clear();
-        this.bonusByCategory.clear();
-      }
+      this.tmpScoreByCategory.clear();
+      this.bonusByCategory.clear();
       
       for (var i in FEATURES) {
         var f = FEATURES[i];
@@ -85,7 +82,6 @@ Clothes = function(csv, real) {
           if (filters.boost2 && filters.boost2 == f) {
             sub *= 1.27 * 1.4;
           }
-          
           if (filters[f] > 0) {
             if (sub > 0) {
               this.tmpScoreByCategory.record(f, sub, 0); // matched with major
@@ -107,7 +103,7 @@ Clothes = function(csv, real) {
 
       this.tmpScore = Math.round(s);
       this.tmpBonus = 0;
-      
+
       if (filters.bonus) {
         var total = 0;
         for (var i in filters.bonus) {
@@ -274,7 +270,7 @@ function compactSource(source) {
   if (source.indexOf('定') >= 0) {
     return '染';
   }
-  if (source.indexOf('设计图') >= 0) {
+  if (source.indexOf('图') >= 0) {
     return '图';
   }
   if (source.indexOf('活动') >= 0) {

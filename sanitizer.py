@@ -9,15 +9,15 @@ header = """// Clothes: name, type, id, gorgeous, simple, elegant, active, matur
 """
 
 files = {
-  '下装': ('bottoms.csv', 2),
-  '外套':  ('coat.csv', 2),
-  '连衣裙': ('dress.csv', 2),
-  '发型': ('hair.csv', 2),
-  '妆容': ('makeup.csv', 2),
-  '鞋子': ('shoes.csv', 2),
-  '袜子': ('socks.csv', 2),
-  '上衣': ('tops.csv', 2),
-  '饰品': ('accessories.csv', 2),
+  '下装': ('bottoms.csv', 1),
+  '外套':  ('coat.csv', 1),
+  '连衣裙': ('dress.csv', 1),
+  '发型': ('hair.csv', 1),
+  '妆容': ('makeup.csv', 1),
+  '鞋子': ('shoes.csv', 1),
+  '袜子': ('socks.csv', 1),
+  '上衣': ('tops.csv', 1),
+  '饰品': ('accessories.csv', 1),
 }
 full_file = 'full.csv'
 
@@ -49,7 +49,7 @@ def add_clothes(category, id):
     clothes[category] = {}
   clothes[category][id] = 1
 
-def process(name, file, skip = 2):
+def process(name, file, skip = 1):
   reader = csv.reader(open(PATH + "/" + file))
   for i in xrange(skip):
     reader.next()
@@ -57,6 +57,7 @@ def process(name, file, skip = 2):
   for row in reader:
     if len(row[0]) == 0:
       continue # skip empty rows
+    row.pop(0) # starting from 20160202, they added one more column at the front...
     key = name
     if len(row[3]) > 0:
       key = key + "-" + row[3]
@@ -118,9 +119,9 @@ writer.write("var category = [%s];\n" % (','.join(["'" + i + "'" for i in catego
 writer.close()
 
 """
-writer = open('wardrobe_full.js', 'w');
+writer = open('wardrobe_real.js', 'w');
 writer.write(header)
-writer.write("var wardrobe_full = [\n")
+writer.write("var wardrobe_real = [\n")
 out = process_full(full_file)
 for key in sorted(out, key = subkey):
   for row in out[key]:
