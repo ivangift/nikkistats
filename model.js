@@ -76,12 +76,6 @@ Clothes = function(csv, real) {
         var f = FEATURES[i];
         if (filters[f]) {
           var sub = filters[f] * self[f][2];
-          if (filters.boost1 && filters.boost1 == f) {
-            sub *= 1.27;
-          }
-          if (filters.boost2 && filters.boost2 == f) {
-            sub *= 1.27 * 1.4;
-          }
           if (filters[f] > 0) {
             if (sub > 0) {
               this.tmpScoreByCategory.record(f, sub, 0); // matched with major
@@ -128,6 +122,15 @@ Clothes = function(csv, real) {
       }
       this.tmpScore = Math.round(this.tmpScore);   
       this.tmpBonus = Math.round(this.tmpBonus);
+      if (filters.boost1 == null && filters.boost2 == null) {
+        this.totalScore = this.tmpScore;
+      } else {
+        var boosted = this.boost(filters.boost1, filters.boost2);
+        this.totalScore = Math.round(boosted[0] + boosted[1]);
+      }
+    },
+    boost: function(boost1, boost2) {
+      return [this.tmpScoreByCategory.boost(boost1, boost2), this.bonusByCategory.boost(boost1, boost2)];
     }
   };
 }
@@ -144,7 +147,7 @@ function ScoreByCategory() {
       this.scores[category] = [major, minor];
     },
     clear: function() {
-      for (var c in initial) {
+      for (var c in this.scores) {
         initial[c][0] = 0;
         initial[c][1] = 0;
       }
@@ -174,6 +177,20 @@ function ScoreByCategory() {
           }
         }
       }
+    },
+    boost: function(boost1, boost2) {
+      var total = 0;
+      for (var f in this.scores) {
+        //var f = FEATURES[i];
+        var score = Math.max(this.scores[f][0], this.scores[f][1]);
+        if (boost1 == f) {
+          score *= 1.27;
+        } else if (boost2 == f) {
+          score *= 1.778;
+        }
+        total += score;
+      }
+      return total;
     },
     f: function() {
       for (var c in this.scores) {
@@ -353,14 +370,14 @@ function ShoppingCart() {
       }
       return 0;
     },
-    calc: function() {
+    calc: function(boost1, boost2) {
       /*
       for (var c in this.cart) {
         this.cart[c].calc(criteria);
       }
       */
       // fake a clothes
-      this.totalScore = fakeClothes(this.cart);
+      this.totalScore = fakeClothes(this.cart, boost1, boost2);
     }
   }
 };
@@ -372,7 +389,7 @@ function accScore(total, totalBonus, items) {
   return (total - totalBonus) * 0.4 + totalBonus;
 }
 
-function fakeClothes(cart) {
+function fakeClothes(cart, boost1, boost2) {
   var totalScore = 0;
   var totalAccessoriesBonus = 0;
   var totalAccessories = 0;
@@ -413,24 +430,33 @@ function fakeClothes(cart) {
   return {
     name: '总分',
     tmpScore: Math.round(totalScore),
+    totalScore: Math.round(totalScoreByCategory.boost(boost1, boost2) + totalBonusByCategory.boost(boost1, boost2)),
     toCsv: function() {
       return ['', '', '',
-          scoreWithBonusTd(scores.simple[0], bonus.simple[0]), 
-          scoreWithBonusTd(scores.simple[1], bonus.simple[1]),
-          scoreWithBonusTd(scores.cute[0], bonus.cute[0]),
-          scoreWithBonusTd(scores.cute[1], bonus.cute[1]),
-          scoreWithBonusTd(scores.active[0], bonus.active[0]),
-          scoreWithBonusTd(scores.active[1], bonus.active[1]),
-          scoreWithBonusTd(scores.pure[0], bonus.pure[0]),
-          scoreWithBonusTd(scores.pure[1], bonus.pure[1]),
-          scoreWithBonusTd(scores.cool[0], bonus.cool[0]),
-          scoreWithBonusTd(scores.cool[1], bonus.cool[1]), '', ''];
+          scoreWithBonusTd(scores.simple[0], bonus.simple[0], boost1 == 'simple', boost2 == 'simple'), 
+          scoreWithBonusTd(scores.simple[1], bonus.simple[1], boost1 == 'simple', boost2 == 'simple'),
+          scoreWithBonusTd(scores.cute[0], bonus.cute[0], boost1 == 'cute', boost2 == 'cute'),
+          scoreWithBonusTd(scores.cute[1], bonus.cute[1], boost1 == 'cute', boost2 == 'cute'),
+          scoreWithBonusTd(scores.active[0], bonus.active[0], boost1 == 'active', boost2 == 'active'),
+          scoreWithBonusTd(scores.active[1], bonus.active[1], boost1 == 'active', boost2 == 'active'),
+          scoreWithBonusTd(scores.pure[0], bonus.pure[0], boost1 == 'pure', boost2 == 'pure'),
+          scoreWithBonusTd(scores.pure[1], bonus.pure[1], boost1 == 'pure', boost2 == 'pure'),
+          scoreWithBonusTd(scores.cool[0], bonus.cool[0], boost1 == 'cool', boost2 == 'cool'),
+          scoreWithBonusTd(scores.cool[1], bonus.cool[1], boost1 == 'cool', boost2 == 'cool'), '', ''];
     }
   };
 }
 
-function scoreWithBonusTd(score, bonus) {
-  return score + '<div>+' + bonus + '</div>';
+function scoreWithBonusTd(score, bonus, isBoost1, isBoost2) {
+  scoreLabel = score + '<br/>+' + bonus;
+  if (score > 0) {
+    if (isBoost1) {
+      return "<span class='red'>1.27x</span>" + "<div>(" + scoreLabel + ")</div>";
+    } else if (isBoost2) {
+      return "<span class='red'>1.778x</span>" + "<div>(" + scoreLabel + ")</div>";
+    }
+  } 
+  return scoreLabel;
 }
 
 function realRating(a, b, realScoreA, realScoreB, type) {
