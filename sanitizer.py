@@ -35,6 +35,7 @@ convert = 'convert.csv'
 merchant = 'merchant.csv'
 suits = 'suits.csv'
 blacklist = 'blacklist.csv'
+npc = 'npc.csv'
 
 def subkey(key):
   if key in suborder:
@@ -232,3 +233,19 @@ for row in reader:
 writer.write("];")
 writer.close()
 print "skiped", skip, "items"
+
+writer = open('npc.js', 'w');
+reader = csv.reader(open(PATH + "/" + npc))
+writer.write("var npc = {\n")
+for row in reader:
+  level = row[0]
+  writer.write("  '%s': [" % level);
+  skills = []
+  for x in row[1:]:
+    if (len(x) > 0):
+      skills.append("'%s'" % x)
+  writer.write(','.join(skills))
+  writer.write("],\n")
+writer.write("};");
+writer.close()
+

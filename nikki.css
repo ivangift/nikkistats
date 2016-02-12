@@ -1,0 +1,108 @@
+body {
+  font-family: Georgia, "Times New Roman", 
+       "Microsoft YaHei", "微软雅黑", 
+       STXihei, "华文细黑", 
+       serif;
+  font-size: 100%;
+}
+span.config {
+  margin-right:1em;
+  margin-top: 0.5em;
+  display:inline-block;
+}
+div.desc {
+  margin-top: 0.5em;
+}
+
+table{
+  margin: 8px;
+}
+
+.pattern table{
+  width: auto;
+}
+
+table th {
+  padding: 5px;
+  background: #ffbb33;
+}
+
+table.breakdown th {
+  padding: 3px;
+  background: #ffe599;
+}
+
+table > tbody > tr > td{
+  padding: 5px;
+  background: #f8f8f8;
+}
+
+select
+{
+  width: 200px;
+  height: 29px;
+  margin-top: 0.5em;
+  border-radius: 3px;
+  border: 1px solid #CCC;
+  font-weight: 200;
+  font-size: 1em;
+  font-family: Verdana;
+  box-shadow: 1px 1px 5px #CCC;
+}
+select: hover
+{
+  width: 200px;
+  height: 29px;
+  border-radius: 3px;
+  border: 1px solid #CCC;
+  font-weight: 200;
+  font-size: 1em;
+  font-family: Verdana;
+  box-shadow: 1px 1px 5px #CCC;
+}
+input[type=text] {
+  height: 1.5em;
+  border-radius: 3px;
+  border: 1px solid #CCC;
+  padding-left: 8px;
+  margin: 1px;
+  font-weight: 200;
+  font-size: 1em;
+  font-family: Verdana;
+  box-shadow: 1px 1px 5px #CCC;
+}
+
+.panel {
+  width: 50em;
+}
+.panel h3 {
+  margin: 0px;
+  padding: 2px;
+  font-size: 0.85em;
+}
+.panel h3 a {
+  display: block;
+  background: #668bb1;
+  color:#fff;
+  padding:10px;
+  text-decoration:none;
+  position: relative;
+}
+.panel h3 a:after {
+  content: '+';
+  position: absolute;
+  right: 20px;
+}
+.panel h3.open a { 
+  background: #c4ced5; 
+  color:inherit;
+}
+.panel h3.open a:after {
+  content: '-';
+}
+.red {
+  color: red;
+}
+.blue {
+  color: blue;
+}
