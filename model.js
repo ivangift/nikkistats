@@ -124,9 +124,11 @@ Clothes = function(csv, real) {
       this.tmpBonus = Math.round(this.tmpBonus);
       if (filters.boost1 == null && filters.boost2 == null) {
         this.totalScore = this.tmpScore;
+        this.totalBonus = this.tmpBonus;
       } else {
         var boosted = this.boost(filters.boost1, filters.boost2);
         this.totalScore = Math.round(boosted[0] + boosted[1]);
+        this.totalBonus = Math.round(boosted[1]);
       }
     },
     boost: function(boost1, boost2) {
