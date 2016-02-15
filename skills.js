@@ -1,4 +1,5 @@
 var GCD = 2.5;
+var lastJudge = 12;
 
 var skillSet = {
   '暖暖的微笑': Skill('暖暖的微笑', 0, 0, 10, true, function(player, ts) {
@@ -37,7 +38,7 @@ var skillSet = {
       player.log['圣诞礼物'] = 0;
     }
     player.log['圣诞礼物']++;
-    return true;
+    return ts <= lastJudge;
   }),
   '灰姑娘时钟': Skill('灰姑娘时钟', 1.2, 5.5, 11, false, function(player, ts) {
     if (player.immunes['灰姑娘时钟'] && player.immunes['灰姑娘时钟'] >= ts) {
@@ -47,7 +48,7 @@ var skillSet = {
       player.log['灰姑娘时钟'] = 0;
     }
     player.log['灰姑娘时钟']++;
-    return true;
+    return ts <= lastJudge;
   }),
   '免疫礼物': Skill('免疫礼物', 0, 4, 8, true, function(player, ts) {
     player.immunes['圣诞礼物'] = ts + 4;
