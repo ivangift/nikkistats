@@ -69,6 +69,10 @@ var skillSet = {
     player.sleep = ts;
     return true;
   }),
+  '反弹挑剔': Skill('反弹挑剔', 0, 1.7, 900, true, function(player, ts) {
+    player.refect = ts + 1.7;
+    return true;
+  }),
   '填充用技能1': Skill('填充用技能1', 0, 0, 10, true, function(player, ts) {
     // do nothing
     return true;
