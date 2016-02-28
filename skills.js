@@ -73,11 +73,11 @@ var skillSet = {
     player.refect = ts + 1.7;
     return true;
   }),
-  '填充用技能1': Skill('填充用技能1', 0, 0, 10, true, function(player, ts) {
+  '短CD技能1': Skill('短CD技能1', 0, 0, 10, true, function(player, ts) {
     // do nothing
     return true;
   }),
-  '填充用技能2': Skill('填充用技能2', 0, 0, 10, true, function(player, ts) {
+  '短CD技能2': Skill('短CD技能2', 0, 0, 10, true, function(player, ts) {
     // do nothing
     return true;
   }),
@@ -117,10 +117,10 @@ function skillSuggestion(ememySkills) {
     skills.push(skillSet['免疫灰姑娘']);
   }
   if (skills.length < 3) {
-    skills.push(skillSet['填充用技能1']);
+    skills.push(skillSet['短CD技能1']);
   }
   if (skills.length < 3) {
-    skills.push(skillSet['填充用技能2']);
+    skills.push(skillSet['短CD技能2']);
   }
   skills.push(skillSet['迷人飞吻']);
   return skills;
