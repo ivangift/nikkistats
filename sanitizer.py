@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*- 
 # Ivan's Workshop
 import csv
+import sys
 PATH = 'raw'
 SOURCE = 'source'
 
@@ -23,11 +24,19 @@ full_file = 'full.csv'
 
 fileorder = ['发型', '连衣裙', '外套', '上衣', '下装', '袜子', '鞋子', '饰品', '妆容']
 
+"""
 suborder = ['袜子-袜套','袜子-袜子','饰品-头饰','饰品-耳饰','饰品-颈饰',
   '饰品-颈饰*项链','饰品-颈饰*围巾','饰品-手饰','饰品-手饰*左',
   '饰品-手饰*右','饰品-手饰*双','饰品-手持*左','饰品-手持*右',
   '饰品-腰饰','饰品-特殊*脸部','饰品-特殊*颈部','饰品-特殊*纹身',
   '饰品-特殊*挎包']
+"""
+
+suborder = ['袜子-袜套','袜子-袜子','饰品-头饰','饰品-耳饰','饰品-颈饰',
+  '饰品-颈饰·项链','饰品-颈饰·围巾','饰品-手饰','饰品-手饰·左',
+  '饰品-手饰·右','饰品-手饰·双','饰品-手持·左','饰品-手持·右',
+  '饰品-腰饰','饰品-特殊·脸部','饰品-特殊·颈部','饰品-特殊·纹身',
+  '饰品-特殊·挎包']
 
 pattern = 'pattern.csv'
 evolve = 'evolve.csv'
@@ -38,9 +47,13 @@ blacklist = 'blacklist.csv'
 npc = 'npc.csv'
 
 def subkey(key):
+  base = 0
+  main_key = key.split('-')[0]
+  if main_key in fileorder:
+    base = fileorder.index(main_key) * 1000
   if key in suborder:
-    return suborder.index(key)
-  return key
+    return base + suborder.index(key)
+  return base + key.__hash__() % 800 + 200
 
 clothes = {}
 details = {}
@@ -76,7 +89,49 @@ def process(name, file, skip = 1):
     print k, len(out[k])
   return out
 
+"""
+amy's file:
+"编号","名称","NO.","心级",
+0 1 2 3
+"华丽","简约","优雅","活泼","成熟","可爱","性感","清纯","清凉","保暖",
+4 5 6 7 8 9 10 11 12 13
+"标签1","标签2",
+14 15
+"获取途径","套装","版本号","分类号","分类",
+16 17 18 19 20
+"部位","部位（配装器）","编号","获取途径（改）","获取途径（简）"
+21 22 23 24 25
+"""
+
+def compatible(type):
+  if type == '上装':
+    return '上衣'
+  return type
+
 def process_full(file):
+  reader = csv.reader(open(PATH + "/" + file))
+  reader.next()
+  out = {}
+  skip = 0
+  for row in reader:
+    key = compatible(row[20])
+    name = key
+    id = row[2]
+    if len(row[21]) > 0 and (compatible(row[21]) != key or row[21] == '袜子'):
+      key = key + "-" + row[21]
+    add_clothes(name, id)
+    if key not in out:
+      out[key] = []
+    if len(row[15]) > 0:
+      row[14] = row[14] + "," + row[15]
+    tbd = [row[1], key, row[2], row[3]] + row[4:14] + [row[14], row[16], row[17]]
+    #tbd.append(row[16])
+    out[key].append(tbd)
+  for k in out:
+    print k, len(out[k])
+  return out
+
+def process_real(file):
   reader = csv.reader(open(PATH + "/" + file))
   reader.next()
   out = {}
@@ -100,24 +155,49 @@ def process_full(file):
     print k, len(out[k])
   return out
 
-writer = open('wardrobe.js', 'w');
-category = []
-writer.write(header)
-writer.write("var wardrobe = [\n")
-for f in fileorder:
-  out = process(f, files[f][0], files[f][1])
+def wardrobe():
+  writer = open('wardrobe.js', 'w');
+  category = []
+  writer.write(header)
+  writer.write("var wardrobe = [\n")
+  for f in fileorder:
+    out = process(f, files[f][0], files[f][1])
+    for key in sorted(out, key = subkey):
+      if key not in category:
+        category.append(key)
+        details[key] = {}
+      for row in out[key]:
+        # output in forms of name, *type*, id, stars, features....
+        newrow = [row[0]] + [key] + row[1:]
+        details[key][row[1]] = newrow[15]
+        writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in newrow])))
+  writer.write("];\n");
+  writer.write("var category = [%s];\n" % (','.join(["'" + i + "'" for i in category])))
+  writer.close()
+
+def wardrobe_full():
+  writer = open('wardrobe.js', 'w');
+  category = []
+  writer.write(header)
+  writer.write("var wardrobe = [\n")
+  out = process_full(full_file)
   for key in sorted(out, key = subkey):
-    if key not in category:
-      category.append(key)
-      details[key] = {}
     for row in out[key]:
+      if key not in category:
+        category.append(key)
+        details[key] = {}
       # output in forms of name, *type*, id, stars, features....
-      newrow = [row[0]] + [key] + row[1:]
-      details[key][row[1]] = newrow[15]
-      writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in newrow])))
-writer.write("];\n");
-writer.write("var category = [%s];\n" % (','.join(["'" + i + "'" for i in category])))
-writer.close()
+      writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in row])))
+  writer.write("];\n");
+  writer.write("var category = [%s];\n" % (','.join(["'" + i + "'" for i in category])))
+  writer.close()
+
+if len(sys.argv) > 1 and sys.argv[1] == '-f':
+  wardrobe_full()
+else:
+  wardrobe()
+
+
 
 """
 writer = open('wardrobe_real.js', 'w');
