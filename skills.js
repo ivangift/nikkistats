@@ -17,6 +17,9 @@ var skillSet = {
     if (player.immunes['挑剔的目光'] && player.immunes['挑剔的目光'] >= ts) {
       return false;
     }
+    if (player.reflect >= ts) {
+      return false; // TODO: actual reflect
+    }
     if (!player.log['挑剔的目光']) {
       player.log['挑剔的目光'] = 0;
     }
@@ -70,7 +73,7 @@ var skillSet = {
     return true;
   }),
   '反弹挑剔': Skill('反弹挑剔', 0, 1.7, 900, true, function(player, ts) {
-    player.refect = ts + 1.7;
+    player.reflect = ts + 1.7;
     return true;
   }),
   '短CD技能1': Skill('短CD技能1', 0, 0, 10, true, function(player, ts) {
