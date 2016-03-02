@@ -63,12 +63,9 @@ var skillSet = {
   }),
   '沉睡魔咒': Skill('沉睡魔咒', 0.7, 5, 900, false, function(player, ts) {
     player.sleep = ts + 5;
-    if (player.skills.cd['真爱之吻']) {
-      player.skills.cd['真爱之吻'] = Math.max(ts, player.skills.cd['真爱之吻']);
-    }
     return true;
   }),
-  '真爱之吻': Skill('真爱之吻', 0.7, 5, 900, true, function(player, ts) {
+  '真爱之吻': Skill('真爱之吻', 0, 0, 900, true, function(player, ts) {
     player.sleep = ts;
     return true;
   }),
@@ -106,6 +103,17 @@ function containsSkill(skills, name) {
   return false;
 }
 
+// Don't delete item, otherwise the length won't change
+function deleteSkill(skills, name) {
+  var ret = [];
+  for (var i in skills) {
+    if (skills[i].name != name) {
+      ret.push(skills[i]);
+    }
+  }
+  return ret;
+}
+
 function skillSuggestion(ememySkills) {
   var skills = [];
   // note: skills are put in orders
@@ -119,11 +127,11 @@ function skillSuggestion(ememySkills) {
   if (skills.length < 3 && containsSkill(ememySkills, "灰姑娘时钟")) {
     skills.push(skillSet['免疫灰姑娘']);
   }
-  if (skills.length < 3) {
+  if (skills.length == 1) {
     skills.push(skillSet['短CD技能1']);
-  }
-  if (skills.length < 3) {
     skills.push(skillSet['短CD技能2']);
+  } else if (skills.length == 2) {
+    skills.push(skillSet['沉睡魔咒']); // thanks to 秋泠@tieba, the original all-purpose skill still works
   }
   skills.push(skillSet['迷人飞吻']);
   return skills;
@@ -135,9 +143,6 @@ function PlayerSkill() {
     cd: {},
     put: function(skill) {
       this.skills.push(skill);
-      if (skill.name == '真爱之吻') {
-        this.cd['真爱之吻'] = 18; // large enough
-      }
     },
     clear: function() {
       this.skills = [];
@@ -225,6 +230,8 @@ function Player(name, isPlayer) {
           ret.push(skillSet['真爱之吻']);
         }
         return ret;
+      } else {
+        ret = deleteSkill(available, '真爱之吻');
       }
       return available;
     },
@@ -238,7 +245,11 @@ function Player(name, isPlayer) {
       var next = 18; // should be large enough
       for (var s in this.skills.cd) {
         var ts = this.skills.cd[s];
-        if (s != '真爱之吻') {
+        if (s == '真爱之吻') {
+          if (this.sleep <= 0) {
+            ts = 18; // should be large enough
+          }
+        } else {
           ts = Math.max(this.sleep, ts);
         }
         if (ts < next) {
