@@ -231,9 +231,8 @@ function Player(name, isPlayer) {
         }
         return ret;
       } else {
-        ret = deleteSkill(available, '真爱之吻');
+        return deleteSkill(available, '真爱之吻');
       }
-      return available;
     },
     apply: function(skill, ts) {
       var result = skill.effect(this, ts);
