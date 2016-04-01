@@ -189,7 +189,7 @@ var typeInfo = function() {
       needFilter: function() {
         return this.mainType == "连衣裙"
             || this.mainType == "外套"
-            || this.mainType == "上装"
+            || this.mainType == "上衣"
             || this.mainType == "下装";
       }
     }
