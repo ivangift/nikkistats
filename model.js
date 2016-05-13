@@ -2,6 +2,18 @@
 
 var FEATURES = ["simple", "cute", "active", "pure", "cool"];
 var ACCRATIO = [1, 1, 1, 1, 0.95, 0.9, 0.825, 0.75, 0.7, 0.65, 0.6, 0.55, 0.51, 0.47, 0.45, 0.425, 0.4];
+var CN_FEATURES = {
+  "简约": ["simple", 1],
+  "华丽": ["simple", -1],
+  "可爱": ["cute", 1],
+  "成熟": ["cute", -1],
+  "活泼": ["active", 1],
+  "优雅": ["active", -1],
+  "清纯": ["pure", 1],
+  "性感": ["pure", -1],
+  "清凉": ["cool", 1],
+  "保暖": ["cool", -1],
+};
 
 
 // parses a csv row into object
@@ -11,6 +23,10 @@ Clothes = function(csv, real) {
   var theType = typeInfo[csv[1]];
   if (!theType) {
     alert("not found: " + csv[1]);
+  }
+  var ability = null;
+  if (theType.mainType == '萤光之灵') {
+    ability = Ability(csv[14]);
   }
   return {
     own: false,
@@ -28,6 +44,7 @@ Clothes = function(csv, real) {
     suit: csv[16],
     tmpScoreByCategory: ScoreByCategory(),
     bonusByCategory: ScoreByCategory(),
+    ability: ability,
     deps: {},
     toCsv: function() {
       name = this.name;
@@ -117,6 +134,11 @@ Clothes = function(csv, real) {
         this.tmpBonus = total;
         this.tmpScore += total;
       }
+      // special for pets
+      if (this.ability) {
+        this.ability.apply(filters, this);
+      }
+
       if (this.type.needFilter() && currentLevel && currentLevel.filter) {
         currentLevel.filter.filter(this);
       }
@@ -133,6 +155,24 @@ Clothes = function(csv, real) {
     },
     boost: function(boost1, boost2) {
       return [this.tmpScoreByCategory.boost(boost1, boost2), this.bonusByCategory.boost(boost1, boost2)];
+    }
+  };
+}
+
+function Ability(desc, clothes) {
+  var t = desc.split("+");
+  // I have no idea if amy will change the representation, just using as a temp solution
+  var feature = CN_FEATURES[t[0]];
+  var bonus = parseInt(t[1]);
+  return {
+    apply: function(filters, clothes) {
+      if (filters[feature[0]] && filters[feature[0]] * feature[1] > 0) {
+        clothes.tmpBonus += bonus;
+        clothes.tmpScore += bonus;
+        var raw = {};
+        raw[feature[0]] = bonus;
+        clothes.bonusByCategory.addRaw(filters, raw);
+      }
     }
   };
 }
