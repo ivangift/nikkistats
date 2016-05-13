@@ -91,7 +91,8 @@ var scoreWeight = {
   '袜子': 3,
   '鞋子': 4,
   '饰品': 2,
-  '妆容': 1
+  '妆容': 1,
+  '萤光之灵': 2
 };
 
 function avg(score) {
@@ -142,7 +143,8 @@ var scoring = {
   '袜子': weighted(std, scoreWeight['袜子']),
   '鞋子': weighted(std, scoreWeight['鞋子']),
   '饰品': weighted(std, scoreWeight['饰品']),
-  '妆容': weighted(std, scoreWeight['妆容'])
+  '妆容': weighted(std, scoreWeight['妆容']),
+  '萤光之灵': weighted(std, scoreWeight['萤光之灵']),
 }
 
 var deviation = {
@@ -154,7 +156,7 @@ var deviation = {
   '袜子': sigma(sockScoring),
   '鞋子': sigma(shoeScoring),
   '饰品': sigma(accessoriesScoring),
-  '妆容': sigma(makeupScoring)
+  '妆容': sigma(makeupScoring),
 }
 
 function getScore(clothesType) {
