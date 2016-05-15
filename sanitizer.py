@@ -106,8 +106,6 @@ def process_full(file):
   out = {}
   skip = 0
   for row in reader:
-    if row[21] == '饰品-手持·双': # skip this part, too difficult to handle
-      continue
     key = compatible(row[20])
     name = key
     id = row[2]
@@ -176,10 +174,12 @@ def wardrobe_full():
   writer.write("var wardrobe = [\n")
   out = process_full(full_file)
   for key in sorted(out, key = subkey):
+    if key == '饰品-手持·双': # skip this part, too difficult to handle
+      continue
+    if key not in category:
+      category.append(key)
+      details[key] = {}
     for row in out[key]:
-      if key not in category:
-        category.append(key)
-        details[key] = {}
       # output in forms of name, *type*, id, stars, features....
       writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in row])))
   writer.write("];\n");
