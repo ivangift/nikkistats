@@ -74,7 +74,7 @@ var makeupScoring = {
 
 // a normalized model for all clothes
 var standardScoring = {
-  'SSS': [350, 350], // est, never seen it
+  'SSS': [330, 330], // est, never seen it
   'SS': [240, 300], //est
   'S': [180, 240],
   'A': [150, 180],

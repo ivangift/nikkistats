@@ -20,7 +20,9 @@ files = {
   '上衣': ('tops.csv', 1),
   '饰品': ('accessories.csv', 1),
 }
+
 full_file = 'full.csv'
+debug_file = 'real.csv'
 
 fileorder = ['发型', '连衣裙', '外套', '上衣', '下装', '袜子', '鞋子', '饰品', '妆容', '萤光之灵']
 
@@ -124,7 +126,7 @@ def process_full(file):
   return out
 
 def process_real(file):
-  reader = csv.reader(open(PATH + "/" + file))
+  reader = csv.reader(open(SOURCE + "/" + file))
   reader.next()
   out = {}
   skip = 0
@@ -193,11 +195,10 @@ else:
 
 
 
-"""
 writer = open('wardrobe_real.js', 'w');
 writer.write(header)
 writer.write("var wardrobe_real = [\n")
-out = process_full(full_file)
+out = process_real(debug_file)
 for key in sorted(out, key = subkey):
   for row in out[key]:
     # output in forms of name, *type*, id, stars, features....
@@ -205,7 +206,7 @@ for key in sorted(out, key = subkey):
     writer.write("  [%s],\n" % (','.join(["'" + i + "'" for i in newrow])))
 writer.write("];\n");
 writer.close()
-"""
+
 
 reader = csv.reader(open(PATH + "/" + blacklist))
 writer = open('blacklist.js', 'w');
