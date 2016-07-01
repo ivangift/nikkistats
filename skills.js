@@ -129,7 +129,7 @@ function skillSuggestion(ememySkills) {
   }
   if (skills.length == 1) {
     skills.push(skillSet['短CD技能1']);
-    skills.push(skillSet['短CD技能2']);
+    skills.push(skillSet['沉睡魔咒']); // thanks to 秋泠@tieba, the original all-purpose skill still works
   } else if (skills.length == 2) {
     skills.push(skillSet['沉睡魔咒']); // thanks to 秋泠@tieba, the original all-purpose skill still works
   }
